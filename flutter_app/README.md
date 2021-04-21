@@ -2,10 +2,11 @@
 Project for studies
 
 ## Screenshots
-
-![](SignIn.png = 200x200)
-![](SignUp.png = 200x200)
-![](HomePage.png = 200x200)
-![](Drawer.png = 200x200)
-![](Profile.png = 200x200)
-
+<div class="image">
+  <img src="SignIn.png" width="200">
+  <img src="SignUp.png" width="200">
+  <img src="HomePage.png" width="200"> <br>
+  <img src="Drawer.png" width="200">
+  <img src="Profile.png" width="200">
+</div>
+  
