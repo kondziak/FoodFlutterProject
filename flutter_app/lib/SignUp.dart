@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:email_validator/email_validator.dart';
 import 'main.dart';
+import 'User.dart';
+import 'ApiKey.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 
 class SignUpWidget extends StatelessWidget{
 
@@ -27,9 +32,12 @@ class SignUp extends StatefulWidget{
 
 class _SignUp extends State<SignUp>{
 
+  String username,password,email;
+
   final keyForm = GlobalKey<FormState>();
   TextEditingController usernameCon = TextEditingController(),
-      passwordCon= TextEditingController(),verifyCon = TextEditingController();
+      passwordCon= TextEditingController(),verifyCon = TextEditingController(),
+      emailCon = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +157,7 @@ class _SignUp extends State<SignUp>{
           }
           return null;
         },
+        controller: emailCon,
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.done,
         showCursor: true,
@@ -256,6 +265,9 @@ class _SignUp extends State<SignUp>{
             onPressed: ()=>
             {setState(() {
               if (keyForm.currentState.validate())
+                username = usernameCon.text.toString();
+                email = emailCon.text.toString();
+                password = passwordCon.text.toString();
                 goToHome(this.context);
             }),
             }),
@@ -264,7 +276,47 @@ class _SignUp extends State<SignUp>{
   }
 
   Future <void> goToHome(BuildContext context) async{
+    try{
+      SignUpUser sign = new SignUpUser(username, password,email);
+      await sign.registerUser();
+    } catch(error){
+      print(error);
+    }
     await Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage()));
   }
 }
 
+
+class SignUpUser{
+  User u;
+
+  SignUpUser(String username, String password, String email){
+    u = new User(username : username,password : password, email :email);
+  }
+
+
+  Future<void> registerUser() async{
+      var url = Uri.parse(ApiKey.databaseUrl + "Users.json" ) ;
+      var response;
+      Map<String, String> headers = {"Content-type": "application/json"};
+      try{
+        response = await http.post(
+            url,
+            body: json.encode(
+                {
+                  "username" : u.username,
+                  "email" : u.email,
+                  "password" : u.password,
+                }
+            ),
+            headers: headers
+        );
+        print(response.statusCode);
+      } catch(error){
+        print("Error when signing up: " + error);
+        throw error;
+      }
+  }
+
+
+}

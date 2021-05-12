@@ -26,10 +26,13 @@ dependencies:
   email_validator: '^1.0.6'
   google_fonts: ^2.0.0
   circular_profile_avatar: ^2.0.0
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+  http: ^0.13.1
   cupertino_icons: ^1.0.0
+  image_picker: ^0.7.4
+  cloud_firestore: ^2.1.0
+  firebase_core: ^1.1.1
+  firebase_auth: ^1.1.4
+
 
 dev_dependencies:
   flutter_test:

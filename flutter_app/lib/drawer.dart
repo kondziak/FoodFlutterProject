@@ -3,25 +3,26 @@ import 'package:flutter_app/main.dart';
 import 'SignUp.dart';
 import 'MainPage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'User.dart';
 import 'UserPage.dart';
 
 class SideDrawer extends StatefulWidget{
-  String username;
+  User user;
 
-  SideDrawer(String username){
-    this.username = username;
+  SideDrawer(User u){
+    user = u;
   }
 
   @override
-  _SideDrawer createState() => _SideDrawer(username);
+  _SideDrawer createState() => _SideDrawer(user);
 }
 
 class _SideDrawer extends State<SideDrawer>{
 
-  String username;
+  User user;
 
-  _SideDrawer(String username){
-    this.username = username;
+  _SideDrawer(User user){
+    this.user = user;
   }
 
   exit(context) {
@@ -95,10 +96,10 @@ class _SideDrawer extends State<SideDrawer>{
                 Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage()));
               }
               else if(text.compareTo("Home") == 0){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(username)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(user)));
               }
               else if(text.compareTo("Profile") == 0){
-                Navigator.push(context,MaterialPageRoute(builder: (context) => UserPage(context,username)));
+                Navigator.push(context,MaterialPageRoute(builder: (context) => UserPage(context,user)));
               }
             },
           ),

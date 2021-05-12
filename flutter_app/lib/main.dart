@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -5,8 +6,11 @@ import 'SignUp.dart';
 import 'MainPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:email_validator/email_validator.dart';
-
-void main() {
+import 'User.dart';
+import 'package:firebase_core/firebase_core.dart';
+Future <void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -36,7 +40,7 @@ class _MyHomePage extends State<MyHomePage>{
   TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
   bool showText = true;
-  String name;
+  String name,email,pass,ID;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +59,7 @@ class _MyHomePage extends State<MyHomePage>{
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Padding(
-                          padding: EdgeInsets.only(left:15,right: 15,top:5),
+                          padding: EdgeInsets.only(left:15,right: 15,top:55),
                           child: TextFormField(
                             showCursor: true,
                             decoration: InputDecoration(
@@ -183,6 +187,8 @@ class _MyHomePage extends State<MyHomePage>{
         )
     );
   }
+
+
   Future<void> register(context) async{
     await Navigator.push(context, MaterialPageRoute(builder: (context) => SignUp()));
   }
@@ -220,19 +226,63 @@ class _MyHomePage extends State<MyHomePage>{
               ),
             )
         ),
-        onPressed: (){
-          setState(() {
+        onPressed: () async{
+          bool state = await checkSingIn();
+          if(!state){
+            return showDialog(context: context, builder: (ctx) =>
+                AlertDialog(
+                  title: Text("Ooops. Something went wrong"),
+                  content: Text("User doesn't exist"),
+                  actions: [
+                    FlatButton(
+                        onPressed: (){
+                          Navigator.of(ctx).pop();
+                        },
+                        child: Text("Okay"))
+                  ],
+                )
+            );
+          }
+          setState(()  {
             if(keyForm.currentState.validate()){
-              name = username.text.toString();
-              goToSecondActivity(this.context,name);
-            }
+              goToSecondActivity(context, User(username: name,email:email,password: pass,ID: ID));
+              }
           });
         },
       ),
     );
   }
-  Future <void> goToSecondActivity(BuildContext context,String name) async{
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(name)));
+
+
+
+  Future <bool> checkSingIn() async {
+    List<User> list = await User.checkIfExist();
+    if(list == null || list.isEmpty){
+      return false;
+    }
+    User u = lookForUser(list, username.text.toString(), password.text.toString());
+    if( u == null){
+      return false;
+    }
+    name = u.username;
+    email = u.email;
+    pass = u.password;
+    ID = u.ID;
+    return true;
+  }
+
+  User lookForUser(List<User>usersList, String email, String password){
+    for(int i = 0; i < usersList.length; i++){
+      if(usersList.elementAt(i).email.compareTo(email) == 0
+          && usersList.elementAt(i).password.compareTo(password) == 0){
+          return usersList.elementAt(i);
+      }
+    }
+    return null;
+  }
+
+  Future <void> goToSecondActivity(BuildContext context,User u) async{
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(u)));
   }
 }
 

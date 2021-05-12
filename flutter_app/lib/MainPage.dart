@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'SearchWidget.dart';
+import 'User.dart';
 import 'drawer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MainPage extends StatelessWidget {
 
-  String username;
+  User user;
 
-  MainPage(String username){
-    this.username = username;
+  MainPage(User u){
+    user = u;
   }
 
   @override
@@ -19,28 +21,29 @@ class MainPage extends StatelessWidget {
           primarySwatch: Colors.deepOrange,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: MainPageWidget(username)
+        home: MainPageWidget(user)
     );
   }
 
 }
 
 class MainPageWidget extends StatefulWidget{
-  String username;
+  User user;
 
-  MainPageWidget(String username){
-    this.username = username;
+  MainPageWidget(User user){
+    this.user = user;
   }
 
   @override
-  _MainPageWidget createState() => _MainPageWidget(username);
+  _MainPageWidget createState() => _MainPageWidget(user);
 }
 
 class _MainPageWidget extends State<MainPageWidget>{
-  String state,username;
+  String state;
+  User user;
 
-  _MainPageWidget(String username){
-    this.username = username;
+  _MainPageWidget(User user){
+    this.user = user;
   }
 
   @override
@@ -50,7 +53,7 @@ class _MainPageWidget extends State<MainPageWidget>{
         title: Text("Home Page"),
       ),
       drawer: Drawer(
-        child: SideDrawer(username),
+        child: SideDrawer(user),
       ),
       body: ListView(
         children: [
@@ -60,15 +63,31 @@ class _MainPageWidget extends State<MainPageWidget>{
                 onCountChanged:(String val){
                   setState(() {
                     state = val;
-                    print(state);
                   });
                 }
               ),
+              getRestaurants(context),
             ],
           )
         ],
       ),
     );
   }
+
+  Widget getRestaurants(BuildContext context){
+    return StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('restaurants').snapshots(),
+        builder: (context,snapshot){
+          if(!snapshot.hasData) return LinearProgressIndicator();
+          return Column(
+            children: [
+              Text(snapshot.data.docs[0]["city"]),
+              Text(snapshot.data.docs[0]["location"]),
+              Text(snapshot.data.docs[0]["name"]),
+            ]
+          );
+        });
+  }
+
 
 }

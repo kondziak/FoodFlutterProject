@@ -1,14 +1,18 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/PasswordChanger.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'User.dart';
 import 'drawer.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UserPage extends StatelessWidget{
   BuildContext previousOne;
-  String username;
-  UserPage(BuildContext context,String username){
+  User user;
+  UserPage(BuildContext context,User user){
     previousOne = context;
-    this.username = username;
+    this.user = user;
   }
 
 
@@ -20,7 +24,7 @@ class UserPage extends StatelessWidget{
         primarySwatch: Colors.deepOrange,
         visualDensity: VisualDensity.adaptivePlatformDensity
       ),
-      home: UserPageWidget(context,username),
+      home: UserPageWidget(context,user),
     );
   }
 }
@@ -28,29 +32,30 @@ class UserPage extends StatelessWidget{
 class UserPageWidget extends StatefulWidget{
 
   BuildContext previousOne;
-  String username;
-  UserPageWidget(BuildContext context,String username){
+  User user;
+  UserPageWidget(BuildContext context, User user){
     previousOne = context;
-    this.username = username;
+    this.user = user;
   }
 
   @override
-  _UserPageWidget createState() => _UserPageWidget(previousOne,username);
+  _UserPageWidget createState() => _UserPageWidget(previousOne,user);
 }
 
 class _UserPageWidget extends State<UserPageWidget>{
 
   BuildContext previousOne;
-  String username;
-  var listOfFields = ["Name","E-mail","Change Data"] ;
-  var listOfAnswers = ["User"];
+  User user;
+  var listOfFields = ["Username","E-mail","Change password"] ;
+  var listOfAnswers = [];
   var listOfIcons = [];
 
-  _UserPageWidget(BuildContext context,String username){
+  _UserPageWidget(BuildContext context,User user){
     previousOne = context;
-    this.username = username;
-    listOfAnswers.add(username);
-    listOfAnswers.add("Here you can change your profile");
+    this.user = user;
+    listOfAnswers.add(user.username);
+    listOfAnswers.add(user.email);
+    listOfAnswers.add("Change your password");
     listOfIcons.add(Icon(
       Icons.person,
       size: 32,
@@ -69,13 +74,25 @@ class _UserPageWidget extends State<UserPageWidget>{
     );
   }
 
+  Future imageFromGallery() async{
+    final picker = ImagePicker();
+    final image = await  picker.getImage (
+        source: ImageSource.gallery,
+        imageQuality: 50
+    );
 
+    setState(() {
+      if(image != null)
+        user.setImage(image);
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        child: SideDrawer(username),
+        child: SideDrawer(user),
       ),
       body: SingleChildScrollView(
         child:Column(
@@ -100,14 +117,26 @@ class _UserPageWidget extends State<UserPageWidget>{
                           children:[
                             CircleAvatar(
                               radius: 70,
-                              child: Text(username,
-                                style: TextStyle(
-                                    fontFamily: GoogleFonts.openSans().fontFamily,
-                                    fontSize:20,
-                                    color: Colors.black
-                                ),),
                               backgroundColor: Colors.tealAccent[400],
+                              child: user.image == null
+                                  ? Text(user.username,
+                                    style: TextStyle(
+                                      color: Colors.black
+                                    ),
+                                  )
+                                  : ClipRRect(
+                                  borderRadius: BorderRadius.circular(70),
+                                  child:Image.file(
+                                    user.image,
+                                    width:130,
+                                    height: 130,
+                                    fit: BoxFit.fitWidth,
+                                  )
+                              )
                             ),
+                            FlatButton(
+                                onPressed: imageFromGallery,
+                                child: Icon(Icons.add_a_photo))
                           ]
                       )
                   ),
@@ -120,7 +149,7 @@ class _UserPageWidget extends State<UserPageWidget>{
             SizedBox(height: 5),
             CardItem(listOfFields[1], listOfAnswers[1], listOfIcons[1]),
             SizedBox(height: 5),
-            CardItem(listOfFields[2], listOfAnswers[2], listOfIcons[2]),
+            InteractiveCardItem(listOfFields[2], listOfAnswers[2], listOfIcons[2],context,this.user),
           ],
         )
       )
@@ -152,7 +181,7 @@ class MyCustomClipper extends CustomClipper<Path>{
   Path getClip(Size size) {
     Path path = Path();
     path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height-120);
+    path.lineTo(size.width, size.height-150);
     path.lineTo(0, size.height);
     return path;
   }
@@ -164,12 +193,72 @@ class MyCustomClipper extends CustomClipper<Path>{
   
 }
 
+
+class InteractiveCardItem extends StatelessWidget{
+
+  final String field, fieldFill;
+  final Icon icon;
+  final BuildContext previousOne;
+  final User user;
+
+  const InteractiveCardItem(this.field,this.fieldFill,this.icon,this.previousOne,this.user);
+
+  Future<void> changePassword(BuildContext ctx, User user)async{
+    await Navigator.push(ctx, MaterialPageRoute(builder: (context) => PasswordChanger(user: this.user, ctx: previousOne)));
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        color:Colors.orangeAccent,
+        child: InkWell(
+          onTap: (){changePassword(previousOne, user);},
+          child: Padding(
+          padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 21,
+          ),
+          child:Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            icon,
+            SizedBox(width:24,),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(field,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),),
+                SizedBox(height:5),
+                Text(fieldFill,
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.openSans().fontFamily,
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+        ),
+        ),
+      )
+    );
+  }
+}
+
+
 class CardItem extends StatelessWidget{
 
   final String field, fieldFill;
   final Icon icon;
 
   const CardItem(this.field,this.fieldFill,this.icon);
+  
 
   @override
   Widget build(BuildContext context) {
