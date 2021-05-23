@@ -1,22 +1,21 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
-
 import 'ApiKey.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:image_picker/image_picker.dart';
 
 class User{
   String username;
   String email;
   String password;
   String ID;
-  var image;
+  PickedFile image;
 
   User({@required this.username,@required this.email,@required this.password,this.ID});
 
-  void setImage(var img){
+  void setImage(PickedFile  img){
     image = img;
   }
 
@@ -24,7 +23,7 @@ class User{
     this.password = password;
   }
 
-  File getImage(){
+  PickedFile getImage(){
     return image;
   }
 

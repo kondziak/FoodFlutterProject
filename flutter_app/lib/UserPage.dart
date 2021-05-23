@@ -1,4 +1,4 @@
-
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/PasswordChanger.dart';
@@ -80,7 +80,6 @@ class _UserPageWidget extends State<UserPageWidget>{
         source: ImageSource.gallery,
         imageQuality: 50
     );
-
     setState(() {
       if(image != null)
         user.setImage(image);
@@ -127,7 +126,7 @@ class _UserPageWidget extends State<UserPageWidget>{
                                   : ClipRRect(
                                   borderRadius: BorderRadius.circular(70),
                                   child:Image.file(
-                                    user.image,
+                                    new File(user.image.path),
                                     width:130,
                                     height: 130,
                                     fit: BoxFit.fitWidth,

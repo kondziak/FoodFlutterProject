@@ -1,16 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/Restaurant.dart';
 import 'dart:async';
 import 'SignUp.dart';
 import 'MainPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:email_validator/email_validator.dart';
 import 'User.dart';
-import 'package:firebase_core/firebase_core.dart';
+
+
 Future <void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  RestaurantsList.getRestaurants();
   runApp(MyApp());
 }
 
@@ -284,6 +287,8 @@ class _MyHomePage extends State<MyHomePage>{
   Future <void> goToSecondActivity(BuildContext context,User u) async{
     await Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(u)));
   }
+
+
 }
 
 

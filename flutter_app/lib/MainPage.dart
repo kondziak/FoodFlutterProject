@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/FoodItem.dart';
+import 'Restaurant.dart';
 import 'SearchWidget.dart';
 import 'User.dart';
 import 'drawer.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class MainPage extends StatelessWidget {
 
   User user;
-
-  MainPage(User u){
+  MainPage(User u) {
     user = u;
   }
 
@@ -25,11 +26,11 @@ class MainPage extends StatelessWidget {
     );
   }
 
+
 }
 
 class MainPageWidget extends StatefulWidget{
   User user;
-
   MainPageWidget(User user){
     this.user = user;
   }
@@ -42,7 +43,7 @@ class _MainPageWidget extends State<MainPageWidget>{
   String state;
   User user;
 
-  _MainPageWidget(User user){
+  _MainPageWidget(User user) {
     this.user = user;
   }
 
@@ -66,27 +67,13 @@ class _MainPageWidget extends State<MainPageWidget>{
                   });
                 }
               ),
-              getRestaurants(context),
+              RestaurantsList(RestaurantsList.restaurants),
+              FoodItemLists(),
             ],
           )
         ],
       ),
     );
-  }
-
-  Widget getRestaurants(BuildContext context){
-    return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('restaurants').snapshots(),
-        builder: (context,snapshot){
-          if(!snapshot.hasData) return LinearProgressIndicator();
-          return Column(
-            children: [
-              Text(snapshot.data.docs[0]["city"]),
-              Text(snapshot.data.docs[0]["location"]),
-              Text(snapshot.data.docs[0]["name"]),
-            ]
-          );
-        });
   }
 
 
